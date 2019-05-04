@@ -167,7 +167,7 @@ class Broker(dict):
 
     def add_exception(self, comp, ex):
         log.exception(ex)
-        self.exceptions[comp].append(traceback.format_exc(ex))
+        self.exceptions[comp].append(traceback.format_exc())
 
 
 def get_group(group=None):
