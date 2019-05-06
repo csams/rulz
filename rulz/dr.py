@@ -231,7 +231,7 @@ def toposort(graph):
         a component at a time in an order that satisfies dependencies.
     """
     g = copy.deepcopy(graph)
-    extra_items = _reduce(set.union, graph.values(), set()) - set(graph)
+    extra_items = _reduce(set.union, graph.values(), set()) - graph.keys()
     g.update(extra_items)
     while g:
         ready = set(c for c, v in g.items() if not v)
