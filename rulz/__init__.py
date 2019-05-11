@@ -1,15 +1,15 @@
 from .dr import (Broker, get_graph, get_group, get_subgraphs, plugin,
-        run_graph, run_subgraphs, SkipException)
-from .loader import load_components
+        run_graph, run_subgraphs, Skip)
+from .loader import load
 
 __all__ = [
     Broker,
     get_graph,
     get_group,
     get_subgraphs,
-    load_components,
+    load,
     plugin,
     run_graph,
     run_subgraphs,
-    SkipException,
+    Skip,
 ]

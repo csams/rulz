@@ -18,7 +18,7 @@ def _import(path, continue_on_error):
             raise
 
 
-def _load_components(path, include=".*", exclude="test", continue_on_error=True):
+def _load(path, include=".*", exclude="test", continue_on_error=True):
     if path.endswith(".py"):
         path, _ = os.path.splitext(path)
 
@@ -39,13 +39,13 @@ def _load_components(path, include=".*", exclude="test", continue_on_error=True)
         if not name.startswith(prefix):
             name = prefix + name
         if is_pkg:
-            _load_components(name, include, exclude, continue_on_error)
+            _load(name, include, exclude, continue_on_error)
         else:
             if do_include(name) and not do_exclude(name):
                 _import(name, continue_on_error)
 
 
-def load_components(*paths, **kwargs):
+def load(*paths, **kwargs):
     """
     Each path in paths should be a full package or module name. They are
     recursively imported.
@@ -65,4 +65,4 @@ def load_components(*paths, **kwargs):
         ImportError
     """
     for path in paths:
-        _load_components(path, **kwargs)
+        _load(path, **kwargs)

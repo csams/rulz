@@ -15,19 +15,19 @@ log = logging.getLogger(__name__)
 HANDLERS = {}
 
 
-class SkipException(Exception):
+class Skip(Exception):
     """
     Raise this exception when a component should be silently skipped.
     """
 
 
-class MissingDependencies(Exception):
+class Missing(Exception):
     """
     Raised when a component has missing dependencies.
     """
     def __init__(self, deps):
         self.deps = deps
-        super(MissingDependencies, self).__init__(deps)
+        super(Missing, self).__init__(deps)
 
 
 class plugin(object):
@@ -105,7 +105,7 @@ class plugin(object):
         """
         missing = self.get_missing(broker)
         if missing is not None:
-            raise MissingDependencies(missing)
+            raise Missing(missing)
         return self.invoke(broker)
 
     def _update_attrs(self, attrs):
@@ -135,7 +135,7 @@ class Broker(dict):
     def __init__(self, seed=None):
         super().__init__(seed or {})
         self.observers = defaultdict(list)
-        self.missing_dependencies = {}
+        self.missing = {}
         self.timings = {}
         self.exceptions = defaultdict(list)
 
@@ -251,11 +251,11 @@ def run_graph(graph=None, broker=None):
             start = time()
             try:
                 broker[comp] = HANDLERS[comp].process(broker)
-            except SkipException:
-                pass
-            except MissingDependencies as md:
-                broker.missing_dependencies[comp] = md.deps
+            except Missing as md:
+                broker.missing[comp] = md.deps
                 log.debug(md)
+            except Skip:
+                pass
             except Exception as ex:
                 broker.add_exception(comp, ex)
             finally:

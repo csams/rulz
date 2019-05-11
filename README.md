@@ -30,9 +30,9 @@ if __name__ == "__main__":
 Invoke it directly or create a driver script like this:
 ```python
 #!/usr/bin/env python
-from rulz import load_components, run_graph
+from rulz import load, run_graph
 
 
-load_components("rulz.plugins")
+load("rulz.plugins")
 print(run_graph())
 ```
