@@ -15,7 +15,7 @@ develop = set([
 if __name__ == "__main__":
     setup(
         name="rulz",
-        version="0.0.3",
+        version="0.0.4",
         description="rulz is a decorator based IoC framework.",
         long_description=open("README.md").read(),
         long_description_content_type="text/markdown",

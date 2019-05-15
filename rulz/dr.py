@@ -232,7 +232,7 @@ def toposort(graph):
     """
     g = copy.deepcopy(graph)
     extra_items = _reduce(set.union, graph.values(), set()) - graph.keys()
-    g.update(extra_items)
+    g.update({c: set() for c in extra_items})
     while g:
         ready = set(c for c, v in g.items() if not v)
         yield from ready
