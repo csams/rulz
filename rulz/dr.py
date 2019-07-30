@@ -1,7 +1,7 @@
 """
 This module implements an inversion of control framework. It allows
 dependencies among functions and classes to be declared with decorators and the
-resulting dependency graphs to be executed.
+resulting graphs to be executed.
 """
 import copy
 import logging
@@ -41,10 +41,8 @@ class plugin(object):
 
     def __init__(self, *reqs, optional=None, group=None, tags=None,
             metadata=None, **kwargs):
-        self.dep_spec = reqs
+        self.reqs = reqs
         self.optional = optional or []
-        self.dep_list = self.__flatten(reqs) + self.optional
-        self.deps = set(self.dep_list)
         self.group = group
 
         self.tags = set(self.__class__.tags)
@@ -58,6 +56,15 @@ class plugin(object):
         self._update_attrs(kwargs)
         self.comp = None
         self.dependents = set()
+
+    @property
+    def deps(self):
+        for r in self.reqs:
+            if isinstance(r, list):
+                yield from r
+            else:
+                yield r
+        yield from self.optional
 
     def __call__(self, comp):
         """
@@ -79,7 +86,7 @@ class plugin(object):
         required = []
         at_least_one = []
 
-        for s in self.dep_spec:
+        for s in self.reqs:
             if isinstance(s, list):
                 if not any(d in broker for d in s):
                     at_least_one.append(s)
@@ -96,7 +103,7 @@ class plugin(object):
         This function can be overridden in subclasses to specialize the calling
         convention.
         """
-        args = [broker.get(d) for d in self.dep_list]
+        args = [broker.get(d) for d in self.deps]
         return self.comp(*args)
 
     def process(self, broker):
@@ -174,7 +181,7 @@ def get_group(group=None):
     """
     Get the set of components in the group along with their dependencies.
     """
-    return {c: h.deps for c, h in HANDLERS.items() if h.group == group}
+    return {c: set(h.deps) for c, h in HANDLERS.items() if h.group == group}
 
 
 def get_subgraphs(graph):
@@ -194,7 +201,7 @@ def get_subgraphs(graph):
             frontier |= set([d for d in HANDLERS[component].deps if d in graph])
             frontier |= set([d for d in HANDLERS[component].dependents if d in graph])
             frontier -= seen
-        yield {s: HANDLERS[s].deps for s in seen}
+        yield {s: set(HANDLERS[s].deps) for s in seen}
         keys -= seen
         seen.clear()
 
@@ -216,7 +223,7 @@ def get_graph(c):
             seen.add(component)
             frontier |= set([d for d in HANDLERS[component].deps if d in HANDLERS])
             frontier -= seen
-        graph.update({s: HANDLERS[s].deps for s in seen})
+        graph.update({s: set(HANDLERS[s].deps) for s in seen})
         keys -= seen
         seen.clear()
 
